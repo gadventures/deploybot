@@ -66,7 +66,10 @@ class SlackPost():
             with msg.threading():
                 do_something()
         """
-        f = io.StringIO()
+        if sys.version_info[0] < 3:
+            f = io.BytesIO()
+        else:
+            f = io.StringIO()
         with redirect_stdout(f):
             yield
         self.thread(f.getvalue())
