@@ -1,7 +1,6 @@
 import requests
 import os
 import sys
-import io
 
 import contextlib
 
@@ -17,6 +16,23 @@ if sys.version_info[0] < 3:
         sys.stdout = original
 else:
     redirect_stdout = contextlib.redirect_stdout
+
+terminal = sys.stdout
+
+
+class CustomIO():
+    def __init__(self):
+        self.messages = []
+
+    def write(self, message):
+        terminal.write(message)
+        self.messages.append(message)
+
+    def getvalue(self):
+        return ''.join(self.messages)
+
+    def flush(self):
+        pass
 
 
 class SlackPost():
@@ -66,10 +82,7 @@ class SlackPost():
             with msg.threading():
                 do_something()
         """
-        if sys.version_info[0] < 3:
-            f = io.BytesIO()
-        else:
-            f = io.StringIO()
+        f = CustomIO()
         with redirect_stdout(f):
             yield
         self.thread(f.getvalue())
